@@ -18,13 +18,121 @@
 
 window.onload = my_onload;
 
+var act_col = "";
+var count = 0;
+
+/*
+ * Grass vars
+ */
+var x = 10;
+var dx = 1;
+var y = 18;
+var dy = 1;
+
+/*
+ * Player vars
+ */
+var p_x = 5;
+var p_dx = 1;
+var p_y = 60;
+var p_dy = 10;
+var leftPressed = false;
+var rightPressed = false;
+var downPressed = false;
+var topPressed = false;
+var getDown = true;
+var getUp = false;
+
+/*
+ * Enemy vars
+ */
+var e_dx = 8;
+var e_x = 0;
+var enemies = {
+    "type": "rect",
+    "x_val": 0
+};
+
+document.addEventListener("keyup", keyDownHandler, false);
+var enemies;
+
 function my_onload() {
     var canvas = document.getElementById("landscapecanvas");
     var ctx = canvas.getContext("2d");
+    clearInterval(enemies);
+    clearInterval(movePlayerXAtStart);
+    getDown = true;
+    p_y = 60;
 
-    draw(ctx, canvas.width, canvas.height);
+    drawLandscape(ctx, canvas.width, canvas.height);
+    p_x = 5;
+    if (count === 0) {
+        var grassInterval = setInterval(function () {
+            draw_path(ctx, canvas.width, canvas.height, act_col);
+        }, 50);
+        /*var playerInterval = setInterval(function () {
+            drawPlayer(ctx, canvas);
+        }, 100);*/
+    }
+    var movePlayerXAtStart = setInterval(function () {
+        p_x += p_dx;
+    }, 10);
+    setTimeout(function () {
+        clearInterval(movePlayerXAtStart);
+    }, 2000);
+    count++;
 
     return false;
+}
+
+function drawEnemies(ctx, width, height) {
+    ctx.beginPath();
+    ctx.fillStyle = "#600200";
+    ctx.rect(width-100-e_x, (height - 40), 25, 25);
+    ctx.fill();
+    ctx.closePath();
+    e_x = e_x + e_dx;
+
+    console.log(enemies);
+}
+
+function keyDownHandler(e) {
+    if(e.keyCode == 39) {
+        rightPressed = true;
+    }
+    else if(e.keyCode == 37) {
+        leftPressed = true;
+    } else if (e.keyCode == 38) {
+        if (!getDown) topPressed = true;
+    } else if (e.keyCode === 40)  {
+        if (!getUp && !topPressed) downPressed = true;
+    }
+    console.log("keypressed: " + e.keyCode);
+}
+
+function drawPlayer(ctx, width, height) {
+    ctx.beginPath();
+    ctx.fillStyle = "#4d4d4d";
+    if (topPressed) {
+        p_y += p_dy;
+    }
+    if (downPressed) {
+
+    }
+    ctx.rect(p_x, (height - 85) - p_y, 35, 70);
+    ctx.fill();
+    ctx.closePath();
+    if (p_y === 60) {
+        getDown = true;
+        topPressed = false;
+    } else if (p_y === 0) {
+        getDown = false;
+    }
+
+    if (getDown) {
+        p_y -= p_dy;
+    }
+    //p_x += p_dx;
 }
 
 function gen_segment(a, b, depth, midfunc) {
@@ -53,7 +161,7 @@ function draw_mountain(ctx, y, width, height) {
             return (a + b) / 2.0 + ((Math.random() - 0.5) * (height / 6.0)) / (1 << d);
         });
 
-    // draw the mountain
+    // drawLandscape the mountain
     ctx.beginPath();
     ctx.moveTo(0, height);
     for (var i = 0; i < points.length; ++i) {
@@ -66,7 +174,7 @@ function draw_mountain(ctx, y, width, height) {
 }
 
 function draw_starfield(ctx, width, height) {
-    for (var i = 0; i < 500; ++i) {
+    for (var i = 0; i < 400; ++i) {
         var gray = Math.ceil(Math.random() * 255);
         ctx.beginPath();
         ctx.fillStyle = "rgb(" + gray + ", " + gray + ", " + gray + ")";
@@ -113,18 +221,13 @@ function draw_moon(ctx, width, height, color) {
     ctx.restore();
 }
 
-x = 10;
-dx = 1;
-y = 25;
-dy = 1;
-
 function draw_path(ctx, width, height, color) {
     var versatz = height;
     var rechts = 0;
-    ctx.clearRect(0, height-34, width, height-40);
+    ctx.clearRect(0, height - 145, width, height - 40);
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.rect(0, height-34, width, height-40);
+    ctx.rect(0, height - 145, width, height - 40);
     ctx.fill();
     ctx.closePath();
     for (var ii = 0; ii < 75; ii++) {
@@ -159,7 +262,6 @@ function draw_path(ctx, width, height, color) {
         ctx.fill();
         rechts += 20;
     }
-    console.log("draw");
     if (x === 14) {
         dx = -1;
 
@@ -167,17 +269,23 @@ function draw_path(ctx, width, height, color) {
     if (x === 6) {
         dx = 1;
     }
-    if (y === 28) {
+    if (y === 20) {
         dy = -1;
     }
-    if (y === 22) {
+    if (y === 15) {
         dy = 1;
     }
     x += dx;
     y += dy;
+
+    /*var height = canvas.height;
+    var width = canvas.width;*/
+    drawPlayer(ctx, width, height);
+    drawEnemies(ctx, width, height);
+    //p_x += p_dx;
 }
 
-function draw(ctx, width, height) {
+function drawLandscape(ctx, width, height) {
     var y = height / 2.0;
     var n = 33;
 
@@ -205,15 +313,7 @@ function draw(ctx, width, height) {
         draw_mountain(ctx, yof, width, height);
 
         if (i === n - 1) {
-            r = Math.ceil(Math.pow(p, 2.2) * color[0]);
-            g = Math.ceil(Math.pow(p, 2.2) * color[1]);
-            b = Math.ceil(Math.pow(p, 2.2) * color[2]);
-            console.log(r);
-            console.log(g);
-            console.log(b);
-            setInterval(function () {
-                draw_path(ctx, width, height, "rgb(" + r + ", " + g + ", " + b + ")");
-            }, 150);
+            act_col = "rgb(" + r + ", " + g + ", " + b + ")";
         }
     }
 
