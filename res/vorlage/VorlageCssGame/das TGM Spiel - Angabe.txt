@@ -1,0 +1,15 @@
+Das TGM Spiel
+
+Allgmein:
+Unser ITboy soll sich durch eine Welt von Kompetenzen kämpfen um das Ziel - die Pforte der Megakompetenz zu erreichen.
+Das Spiel soll ein einfaches Jump and Run Game werden, wo unser ITboy sich durch Tastatureingaben über den Bildschirm bewegen lässt und Hindernisse überspringt.
+
+Es soll ausgehend von der gegebenen Grundstruktur eine Landschaft mit Hindernissen geschaffen werden auf die ITboy springen kann.
+Über den Mouse Listener kann für gute SchülerInnen auch eine Schussfunktion implementiert werden mit der die Objekte (Hindernisse) abgeschossen werden können. Hier können auch Explosionsanimationen ergänzt werden.
+
+Technische Ziele:
+-> Spielsteuerung mittels der Tastatur und der Steuerbuttons (für mobile Devices)
+-> Springen auf oder über Hindernisse und die Abfrage ob er ein Hindernis berührt oder darauf steht.
+-> Game Over Bildschirm
+-> Live Counter
+-> Punkte bzw. Gewinnbildschirm

@@ -1,0 +1,266 @@
+<html>
+	<head>
+		<!-- initial CSS positioning -->
+		<style type="text/css">
+
+			.bg_image
+			{
+				position: absolute;
+				z-index:1;
+			}
+			.enemy_image
+			{
+				position: absolute;
+				z-index:2;
+			}
+		
+		</style>
+		
+		<script type="text/javascript">
+		
+		var obj_postion = "";
+		var obj_left 	= 100;
+		var obj_top 	= 300;
+		var steps		= 10;
+		var characterGround = 300;
+		
+		/*CSS based positioning*/
+		
+		
+		
+		
+		
+		/*Function move()*/
+		function move(direction)		
+		{
+			//Set initial character- enemy- and backgrundposition
+			if(direction=="initial")
+			{
+					setPos(100,100);
+					//Sets the enemy's and the background
+					setSzene();				
+					
+			}else
+			{
+				switch(direction)
+				{
+					case "up":
+						obj_top 	-= steps;
+					break;
+					
+					case "left":
+						obj_left 	-= steps;
+					break;
+					
+					case "right":
+						obj_left	+= steps;
+					break;
+					
+					case "down":
+						//Down - only if character is higher than ground
+						if(obj_top>characterGround)
+						{ obj_top		+= steps;}
+					break;
+				}
+				setPos(obj_top,obj_left);
+			}
+		
+		}
+		
+		function setPos(top,left)
+		{
+			//alert("SetPos aufgerufen y:"+top+" x:"+left);
+			//Set postion in TOP and LEFT Values
+			document.form01.character01.style.position 	= "absolute";
+			document.form01.character01.style.zIndex 	= "3";
+			//document.form01.character01.style.backgroundColor 	= "#ffdd33";
+			document.form01.character01.style.top 		= top	+	"px";
+			document.form01.character01.style.left		= left	+	"px";
+		}
+		
+		
+		function MousePos(evt)
+		{
+			//Sets the actual mouse position in the Event Object into the two variables xMouse,yMouse
+			xMouse = evt.clientX;
+			yMouse = evt.clientY;
+			
+			//document.form01.mousepos.value = "X:"+xMouse+" Y:"+yMouse;
+						
+			setPos(yMouse,xMouse)
+		}
+		
+		
+		//Keyboard Listener
+		function KeyPressed(evt) {
+					/******************************************************
+					******* Additional Code for finding out Key Codes  ****
+					******************************************************/
+					/*
+					alert("Taste gedrueckt: \n"
+					  + "key: " + evt.key + "\n"
+					  + "keyCode: " + evt.keyCode + "\n"
+					  + "which: " + evt.which + "\n"
+					  + "charCode: " + evt.charCode + "\n"
+					  + "Zeichen : " + String.fromCharCode(evt.charCode) + "\n"
+					 );
+					*/
+					/**********************************************************
+					****** Important KeyCodes 								***
+					***********************************************************
+						UP Arrow: KeyCode 38
+						DOWN Arrow: KeyCode 40
+						LEFT Arrow: KeyCode 37
+						RIGHT Arrow: KeyCode 39
+						SPACE: KeyCode 32
+					*********************************************************/
+					 switch(evt.keyCode){
+						//LEFT
+							case 37:
+							obj_left 	-= steps;
+							break;
+						//RIGHT
+							case 39:
+							obj_left 	+= steps;
+							break;
+						//UP 
+							case 38:
+							obj_top		-= steps;
+							break;
+						//Down
+							case 40:
+							obj_top		+= steps;
+							break;
+						//Jump - Space
+							case 32:
+							//alert("test");
+								jump();
+							break;
+					}
+					setPos(obj_top,obj_left);
+		}
+		
+				
+		/***********************************************************/
+		/*		Character Jump									   */
+		/***********************************************************/
+		//Global Vars
+		var yVel = 0; //Velocity in the Y Direction (top)
+		var gravity = 2; //Gravity
+		var isJumping = false; //Saves the state if the character is jumping or not - prevent multiple jumps
+		var drop;
+		
+	
+		function jump() 
+		{
+			//If the character isn't already jumping - jump
+			if (isJumping == false) 
+			{
+					yVel = -150;
+					obj_top += yVel;
+					setPos(obj_top,obj_left);
+					isJumping = true;
+					droploop();
+			}
+		}
+ 
+		/* The aim of the function droploop is the slow descent of the character after the Jump */
+		function droploop()
+		{
+			//if isJumping is true
+			if(isJumping) 
+			{
+				obj_top += gravity;
+				setPos(obj_top,obj_left);
+				
+				//Check if the character has reached the ground the drop is stopped
+				if (obj_top > characterGround) 
+				{				
+					obj_top = characterGround;
+					setPos(obj_top,obj_left);
+					yVel = 0;
+					
+					isJumping = false;
+					
+					clearInterval(drop);
+					
+				}else{
+					//if the character has not reached the ground the loop for the drop is started
+					drop = setInterval(droploop,500);
+				}
+			}
+		}
+		
+		/***********************************************************/
+		/* Set Szene									   		   */
+		/***********************************************************/
+		function setSzene()
+		{
+		
+			alert("SETSZENE aufgerufen");
+			
+			
+			document.getElementById('bgimg01').style.top 	= 300 + "px";
+			document.getElementById('bgimg01').style.left 	= 0 + "px";
+			
+		
+		}
+		
+		
+		
+		/***********************************************************/
+		/* Collission Detect									   */
+		/***********************************************************/
+		
+	
+		
+		</script>
+	</head>
+	<body id="game">
+		<form name="form01">
+		<script type="text/javascript">
+		
+			var elem = document.getElementById('game');
+			elem.addEventListener("keydown", KeyPressed );
+			//MouseListener
+			//elem.addEventListener("mousemove", MousePos );
+						
+		</script>	
+			<table>
+				<tr>
+					<td align='center'>&nbsp;</td>
+					<td align='center'><input type="button" name="btn_up" value="up" onclick="move(this.value);"></td>
+					<td align='center'>&nbsp;</td>
+				</tr>
+				<tr>
+					<td align='center'><input type="button" name="btn_left" value="left" onclick="move(this.value);"></td>
+					<td align='center'>&nbsp;</td>
+					<td align='center'><input type="button" name="btn_right" value="right" onclick="move(this.value);"></td>
+				</tr>
+				<tr>
+					<td align='center'>&nbsp;</td>
+					<td align='center'><input type="button" name="btn_down" value="down" onclick="move(this.value);"></td>
+					<td align='center'>&nbsp;</td>
+				</tr>
+			</table>
+			
+			<!--Unser Objekt-->
+			<img src="ITboy.gif" name="character01"><br />
+			
+			
+			<input type="text" name="pos" size="100">
+			
+			<div class="bg_image" id="bgimg01"><img src="images/wiese.png"></div>
+			<div class="enemy_image" id="enemy01"><img src=""></div>
+		
+		</form>
+		
+
+		
+		<!---->
+		<script type="text/javascript">
+			//Set initial Position of the character
+			move("initial");	
+		</script>
+	</body>
+</html>

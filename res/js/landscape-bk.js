@@ -35,7 +35,7 @@ var dy = 1;
 var p_x = 5;
 var p_dx = 1;
 var p_y = 60;
-var p_dy = 5;
+var p_dy = 10;
 var leftPressed = false;
 var rightPressed = false;
 var downPressed = false;
@@ -80,16 +80,13 @@ function my_onload() {
     clearInterval(movePlayerXAtStart);
     getDown = true;
     p_y = 60;
-    p_x = 5;
-
-    //840 450
 
     drawLandscape(ctx, canvas.width, canvas.height);
     p_x = 5;
     if (count === 0) {
         var grassInterval = setInterval(function () {
             draw_path(ctx, canvas.width, canvas.height, act_col, grassInterval);
-        }, 100);
+        }, 50);
         /*var playerInterval = setInterval(function () {
             drawPlayer(ctx, canvas);
         }, 100);*/
@@ -103,21 +100,21 @@ function my_onload() {
     count++;
 
     var img = document.getElementById("player");
-    setPos(canvas.height -(50)- p_y - 10 - 200,canvas.getBoundingClientRect().x+50+p_x,img);
+    setPos(canvas.height-200,canvas.getBoundingClientRect().x+50+p_x,img);
+
+    console.log(canvas.getBoundingClientRect());
 
     return false;
 }
 
 function detectCollision(param, player_pos) {
-    var img = document.getElementById("player");
-    console.log(document.getElementById("landscapecanvas").getBoundingClientRect().x);
-    console.log("ex:"+enemies["enemies"][0].x_val + ", px:" + img.x);
     return false;
 }
 
 function drawEnemies(ctx, width, height, grassInterval) {
     for (var ii = 0; ii < enemies["enemies"].length; ii++) {
         var x_val = enemies["enemies"][ii].x_val;
+        console.log(x_val);
         ctx.beginPath();
         ctx.fillStyle = "#600200";
         ctx.rect(width - x_val, (height - 40), 25, 25);
@@ -142,9 +139,12 @@ function keyDownHandler(e) {
     } else if (e.keyCode === 40) {
         if (!getUp && !topPressed) downPressed = true;
     }
+    console.log("keypressed: " + e.keyCode);
 }
 
 function drawPlayer(ctx, width, height) {
+    ctx.beginPath();
+    ctx.fillStyle = "#4d4d4d";
     if (topPressed) {
         p_y += p_dy;
     }
@@ -154,7 +154,9 @@ function drawPlayer(ctx, width, height) {
     //ctx.rect(p_x, (height - 85) - p_y, 35, 70);
     var canvas = document.getElementById("landscapecanvas");
     var img = document.getElementById("player");
-    setPos(canvas.height -(50)- p_y - 10,canvas.getBoundingClientRect().x+100+p_x,img);
+    setPos(canvas.height-200 - p_y,canvas.getBoundingClientRect().x+50+p_x,img);
+    ctx.fill();
+    ctx.closePath();
     if (p_y === 60) {
         getDown = true;
         topPressed = false;
@@ -162,12 +164,12 @@ function drawPlayer(ctx, width, height) {
         getDown = false;
     }
 
-
     if (getDown) {
         p_y -= p_dy;
     }
     //p_x += p_dx;
     player_pos = [p_x, (height - 85) - p_y];
+    console.log(player_pos);
 }
 
 function gen_segment(a, b, depth, midfunc) {
@@ -259,10 +261,10 @@ function draw_moon(ctx, width, height, color) {
 function draw_path(ctx, width, height, color, grassInterval) {
     var versatz = height;
     var rechts = 0;
-    ctx.clearRect(0, height - 50, width, height - 40);
+    ctx.clearRect(0, height - 145, width, height - 40);
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.rect(0, height - 50, width, height - 40);
+    ctx.rect(0, height - 145, width, height - 40);
     ctx.fill();
     ctx.closePath();
     for (var ii = 0; ii < 75; ii++) {
@@ -317,7 +319,6 @@ function draw_path(ctx, width, height, color, grassInterval) {
     var width = canvas.width;*/
     drawPlayer(ctx, width, height);
     drawEnemies(ctx, width, height, grassInterval);
-    detectCollision();
     //p_x += p_dx;
 }
 
