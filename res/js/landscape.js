@@ -42,16 +42,21 @@ var downPressed = false;
 var topPressed = false;
 var getDown = true;
 var getUp = false;
+var player_pos = []
 
 /*
  * Enemy vars
  */
 var e_dx = 8;
 var e_x = 0;
-var enemies = {
-    "type": "rect",
-    "x_val": 0
-};
+var enemies = JSON.parse(
+    '{ ' +
+    '"enemies" : [' +
+    '{ "x_val":"0" ,"y_val":"25", "type":"rect" },' +
+    '{ "x_val":"300" ,"y_val":"25", "type":"rect" } ' +
+    ']' +
+    '}'
+);
 
 document.addEventListener("keyup", keyDownHandler, false);
 var enemies;
@@ -68,7 +73,7 @@ function my_onload() {
     p_x = 5;
     if (count === 0) {
         var grassInterval = setInterval(function () {
-            draw_path(ctx, canvas.width, canvas.height, act_col);
+            draw_path(ctx, canvas.width, canvas.height, act_col, grassInterval);
         }, 50);
         /*var playerInterval = setInterval(function () {
             drawPlayer(ctx, canvas);
@@ -85,26 +90,36 @@ function my_onload() {
     return false;
 }
 
-function drawEnemies(ctx, width, height) {
-    ctx.beginPath();
-    ctx.fillStyle = "#600200";
-    ctx.rect(width-100-e_x, (height - 40), 25, 25);
-    ctx.fill();
-    ctx.closePath();
-    e_x = e_x + e_dx;
+function detectCollision(param, player_pos) {
+    return true;
+}
 
-    console.log(enemies);
+function drawEnemies(ctx, width, height, grassInterval) {
+    for (var ii = 0; ii < enemies["enemies"].length; ii++) {
+        var x_val = enemies["enemies"][ii].x_val;
+        console.log(x_val);
+        ctx.beginPath();
+        ctx.fillStyle = "#600200";
+        ctx.rect(width - x_val, (height - 40), 25, 25);
+        ctx.fill();
+        ctx.closePath();
+        enemies["enemies"][ii].x_val = parseInt(x_val) + e_dx;
+        if (detectCollision(enemies["enemies"][ii], player_pos)) {
+            alert("lost");
+            clearInterval(grassInterval);
+        }
+    }
 }
 
 function keyDownHandler(e) {
-    if(e.keyCode == 39) {
+    if (e.keyCode == 39) {
         rightPressed = true;
     }
-    else if(e.keyCode == 37) {
+    else if (e.keyCode == 37) {
         leftPressed = true;
     } else if (e.keyCode == 38) {
         if (!getDown) topPressed = true;
-    } else if (e.keyCode === 40)  {
+    } else if (e.keyCode === 40) {
         if (!getUp && !topPressed) downPressed = true;
     }
     console.log("keypressed: " + e.keyCode);
@@ -133,6 +148,8 @@ function drawPlayer(ctx, width, height) {
         p_y -= p_dy;
     }
     //p_x += p_dx;
+    player_pos = [p_x, (height - 85) - p_y];
+    console.log(player_pos);
 }
 
 function gen_segment(a, b, depth, midfunc) {
@@ -221,7 +238,7 @@ function draw_moon(ctx, width, height, color) {
     ctx.restore();
 }
 
-function draw_path(ctx, width, height, color) {
+function draw_path(ctx, width, height, color, grassInterval) {
     var versatz = height;
     var rechts = 0;
     ctx.clearRect(0, height - 145, width, height - 40);
@@ -281,7 +298,7 @@ function draw_path(ctx, width, height, color) {
     /*var height = canvas.height;
     var width = canvas.width;*/
     drawPlayer(ctx, width, height);
-    drawEnemies(ctx, width, height);
+    drawEnemies(ctx, width, height, grassInterval);
     //p_x += p_dx;
 }
 
